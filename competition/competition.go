@@ -2,9 +2,12 @@ package competition
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
 type Competition struct {
@@ -51,6 +54,53 @@ func requestCompetitions() Competition {
 
 }
 
+func storeCompetitions(comp Competition) {
+	driver := bolt.NewDriver()
+	conn, err := driver.OpenNeo("bolt://neo4j:admin@localhost:7687")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer conn.Close()
+
+	for i := 0; i < len(comp.Data); i++ {
+
+		stmt, err := conn.PrepareNeo(
+			"MERGE (comp:Competition{id:{comp_id}})" +
+				"ON CREATE SET comp.name='" + comp.Data[i].Name + "'" +
+				"MERGE (country:Country{id:{country_id}})" +
+				"ON CREATE SET country.name='" + comp.Data[i].Country.Name + "'" +
+				"MERGE (country)-[:ORGANISES]->(comp) RETURN *")
+		if err != nil {
+			panic(err)
+		}
+
+		result, err := stmt.ExecNeo(map[string]interface{}{
+			"comp_id": comp.Data[i].ID,
+			// "comp_name":    comp.Data[i].Name,
+			"country_id": comp.Data[i].Country.ID,
+			// "country_name": comp.Data[i].Country.Name
+		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		numResult, err := result.RowsAffected()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("CREATED ROWS: %d\n", numResult)
+
+		stmt.Close()
+
+	}
+}
+
 func GetCompetitions() Competition {
-	return requestCompetitions()
+	competitions := requestCompetitions()
+
+	storeCompetitions(competitions)
+
+	return competitions
 }
