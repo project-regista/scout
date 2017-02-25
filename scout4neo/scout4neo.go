@@ -9,10 +9,11 @@ import (
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
+// StoreData receives an array of cypher statements to ingest data in Neo4j
 func StoreData(statement []string) {
 
+	// loads configuration to connect to Db
 	configuration.LoadConfig()
-
 	a := configuration.DbAuth()
 	a.GetDB()
 
@@ -25,6 +26,7 @@ func StoreData(statement []string) {
 
 	defer conn.Close()
 
+	// For each cyoher statement execute a query
 	for i := 0; i < len(statement); i++ {
 
 		stmt, err := conn.PrepareNeo(statement[i])

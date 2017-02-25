@@ -16,6 +16,7 @@ type Auth struct {
 	port     string
 	apitkn   string
 	URL      string
+	Key      string
 }
 
 // LoadConfig from Viper
@@ -27,17 +28,19 @@ func LoadConfig() {
 	}
 }
 
-func ApiAuth() *Auth {
+// APIAuth builds the values used for socceramaAPI access
+func APIAuth() *Auth {
 	return &Auth{
 		apitkn: viper.GetString("soccerama.apitkn"),
 	}
 }
 
+// GetAPI returns the API key
 func (a *Auth) GetAPI() {
-	a.URL = fmt.Sprintf("https://api.soccerama.pro/v1.2/competitions?api_token=%s&include=country",
-		a.apitkn)
+	a.Key = fmt.Sprintf(a.apitkn)
 }
 
+// DbAuth builds values for Db access
 func DbAuth() *Auth {
 	return &Auth{
 		user:     viper.GetString("database.user"),
@@ -47,6 +50,7 @@ func DbAuth() *Auth {
 	}
 }
 
+// GetDB is used to get Db credentials
 func (a *Auth) GetDB() {
 	a.URL = fmt.Sprintf("bolt://%s:%s@%s:%s/db/data",
 		a.user, a.password, a.host, a.port)
