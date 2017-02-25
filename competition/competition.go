@@ -2,16 +2,14 @@ package competition
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"strconv"
 
-	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	"github.com/project-regista/scout/configuration"
-	"github.com/spf13/viper"
+	"github.com/project-regista/scout/scout4neo"
 )
 
 type Competition struct {
@@ -29,46 +27,12 @@ type Competition struct {
 	} `json:"data"`
 }
 
-type Auth struct {
-	user     string
-	password string
-	host     string
-	port     string
-	apitkn   string
-	URL      string
-}
-
-func apiAuth() *Auth {
-	return &Auth{
-		apitkn: viper.GetString("soccerama.apitkn"),
-	}
-}
-
-func (a *Auth) getAPI() {
-	a.URL = fmt.Sprintf("https://api.soccerama.pro/v1.2/competitions?api_token=%s&include=country",
-		a.apitkn)
-}
-
-func dbAuth() *Auth {
-	return &Auth{
-		user:     viper.GetString("database.user"),
-		password: viper.GetString("database.password"),
-		host:     viper.GetString("database.host"),
-		port:     viper.GetString("database.port"),
-	}
-}
-
-func (a *Auth) getURL() {
-	a.URL = fmt.Sprintf("bolt://%s:%s@%s:%s/db/data",
-		a.user, a.password, a.host, a.port)
-}
-
 func requestCompetitions() Competition {
 
 	configuration.LoadConfig()
 
-	a := apiAuth()
-	a.getAPI()
+	a := configuration.ApiAuth()
+	a.GetAPI()
 
 	req, err := http.NewRequest("GET", a.URL, nil)
 	if err != nil {
@@ -122,49 +86,10 @@ func prepareStatements(comp Competition) []string {
 	return statements
 }
 
-func storeData(statement []string) {
-
-	configuration.LoadConfig()
-
-	a := dbAuth()
-	a.getURL()
-
-	driver := bolt.NewDriver()
-	conn, err := driver.OpenNeo(a.URL)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer conn.Close()
-
-	for i := 0; i < len(statement); i++ {
-
-		stmt, err := conn.PrepareNeo(statement[i])
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		result, err := stmt.ExecNeo(map[string]interface{}{})
-
-		if err != nil {
-			log.Fatal(err)
-		}
-		numResult, err := result.RowsAffected()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("CREATED ROWS: %d\n", numResult)
-
-		stmt.Close()
-
-	}
-}
-
 func GetCompetitions() Competition {
 	competitions := requestCompetitions()
 
-	storeData(prepareStatements(competitions))
+	scout4neo.StoreData(prepareStatements(competitions))
 
 	return competitions
 }
