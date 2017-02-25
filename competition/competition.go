@@ -28,7 +28,7 @@ type Competition struct {
 }
 
 // Uses socceramaAPI to get data for competition, including country data
-func requestCompetitions() Competition {
+func requestCompetitions() (Competition, error) {
 	// The configurtion is loaded
 	configuration.LoadConfig()
 	a := configuration.APIAuth()
@@ -37,18 +37,18 @@ func requestCompetitions() Competition {
 	// Makes a request to the API for competitons and country
 	req, err := http.NewRequest("GET", "https://api.soccerama.pro/v1.2/competitions?api_token="+a.Key+"&include=country", nil)
 	if err != nil {
-		log.Fatal(err)
+		return Competition{}, err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return Competition{}, err
 	}
 
 	// Read all responses into content
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return Competition{}, err
 	}
 
 	defer resp.Body.Close()
@@ -59,10 +59,10 @@ func requestCompetitions() Competition {
 	// Fill the competitons with data inside JSON
 	err = json.Unmarshal(content, &comp)
 	if err != nil {
-		log.Fatal(err)
+		return Competition{}, err
 	}
 
-	return comp
+	return comp, nil
 
 }
 
@@ -96,8 +96,10 @@ func prepareStatements(comp Competition) []string {
 
 // GetCompetitions is the main function to access all methos in this module
 func GetCompetitions() Competition {
-	competitions := requestCompetitions()
-
+	competitions, err := requestCompetitions()
+	if err != nil {
+		log.Fatal(err)
+	}
 	scout4neo.StoreData(prepareStatements(competitions))
 
 	return competitions
