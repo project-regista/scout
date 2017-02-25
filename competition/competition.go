@@ -69,9 +69,11 @@ func storeCompetitions(comp Competition) {
 		stmt, err := conn.PrepareNeo(
 			"MERGE (comp:Competition{id:{comp_id}})" +
 				"ON CREATE SET comp.name='" + comp.Data[i].Name + "'" +
+				"ON MATCH SET comp.name='" + comp.Data[i].Name + "'" +
 				"MERGE (country:Country{id:{country_id}})" +
 				"ON CREATE SET country.name='" + comp.Data[i].Country.Name + "'" +
-				"MERGE (country)-[:ORGANISES]->(comp) RETURN *")
+				"ON MATCH SET country.name='" + comp.Data[i].Country.Name + "'" +
+				"MERGE (country)-[:ORGANISES]->(comp)")
 		if err != nil {
 			panic(err)
 		}
