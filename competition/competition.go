@@ -10,6 +10,8 @@ import (
 	"strconv"
 
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
+	"github.com/project-regista/scout/configuration"
+	"github.com/spf13/viper"
 )
 
 type Competition struct {
@@ -27,8 +29,48 @@ type Competition struct {
 	} `json:"data"`
 }
 
+type Auth struct {
+	user     string
+	password string
+	host     string
+	port     string
+	apitkn   string
+	URL      string
+}
+
+func apiAuth() *Auth {
+	return &Auth{
+		apitkn: viper.GetString("soccerama.apitkn"),
+	}
+}
+
+func (a *Auth) getAPI() {
+	a.URL = fmt.Sprintf("https://api.soccerama.pro/v1.2/competitions?api_token=%s&include=country",
+		a.apitkn)
+}
+
+func dbAuth() *Auth {
+	return &Auth{
+		user:     viper.GetString("database.user"),
+		password: viper.GetString("database.password"),
+		host:     viper.GetString("database.host"),
+		port:     viper.GetString("database.port"),
+	}
+}
+
+func (a *Auth) getURL() {
+	a.URL = fmt.Sprintf("bolt://%s:%s@%s:%s/db/data",
+		a.user, a.password, a.host, a.port)
+}
+
 func requestCompetitions() Competition {
-	req, err := http.NewRequest("GET", "https://api.soccerama.pro/v1.2/competitions?api_token=IjtTiudWktGxEeAIXpTtJPSkG4RWaAVUdPZwSCeWU0aAmXtcN8n5ya7IUho7&include=country", nil)
+
+	configuration.LoadConfig()
+
+	a := apiAuth()
+	a.getAPI()
+
+	req, err := http.NewRequest("GET", a.URL, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,8 +123,14 @@ func prepareStatements(comp Competition) []string {
 }
 
 func storeData(statement []string) {
+
+	configuration.LoadConfig()
+
+	a := dbAuth()
+	a.getURL()
+
 	driver := bolt.NewDriver()
-	conn, err := driver.OpenNeo("bolt://neo4j:admin@localhost:7687")
+	conn, err := driver.OpenNeo(a.URL)
 
 	if err != nil {
 		log.Fatal(err)
