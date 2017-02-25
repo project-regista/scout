@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	"strconv"
+
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
@@ -54,7 +56,31 @@ func requestCompetitions() Competition {
 
 }
 
-func storeCompetitions(comp Competition) {
+func prepareStatements(comp Competition) []string {
+	var statements []string
+
+	for i := 0; i < len(comp.Data); i++ {
+
+		compID := strconv.Itoa(comp.Data[i].ID)
+		compName := comp.Data[i].Name
+		countryID := strconv.Itoa(comp.Data[i].Country.ID)
+		countryName := comp.Data[i].Country.Name
+
+		str := "MERGE (comp:Competition{id:" + compID + "})\n" +
+			"ON CREATE SET comp.name='" + compName + "'\n" +
+			"ON MATCH SET comp.name='" + compName + "'\n" +
+			"MERGE (country:Country{id:" + countryID + "})\n" +
+			"ON CREATE SET country.name='" + countryName + "'\n" +
+			"ON MATCH SET country.name='" + countryName + "'\n" +
+			"MERGE (country)-[:ORGANISES]->(comp)"
+
+		statements = append(statements, str)
+	}
+
+	return statements
+}
+
+func storeData(statement []string) {
 	driver := bolt.NewDriver()
 	conn, err := driver.OpenNeo("bolt://neo4j:admin@localhost:7687")
 
@@ -64,26 +90,14 @@ func storeCompetitions(comp Competition) {
 
 	defer conn.Close()
 
-	for i := 0; i < len(comp.Data); i++ {
+	for i := 0; i < len(statement); i++ {
 
-		stmt, err := conn.PrepareNeo(
-			"MERGE (comp:Competition{id:{comp_id}})" +
-				"ON CREATE SET comp.name='" + comp.Data[i].Name + "'" +
-				"ON MATCH SET comp.name='" + comp.Data[i].Name + "'" +
-				"MERGE (country:Country{id:{country_id}})" +
-				"ON CREATE SET country.name='" + comp.Data[i].Country.Name + "'" +
-				"ON MATCH SET country.name='" + comp.Data[i].Country.Name + "'" +
-				"MERGE (country)-[:ORGANISES]->(comp)")
+		stmt, err := conn.PrepareNeo(statement[i])
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
-		result, err := stmt.ExecNeo(map[string]interface{}{
-			"comp_id": comp.Data[i].ID,
-			// "comp_name":    comp.Data[i].Name,
-			"country_id": comp.Data[i].Country.ID,
-			// "country_name": comp.Data[i].Country.Name
-		})
+		result, err := stmt.ExecNeo(map[string]interface{}{})
 
 		if err != nil {
 			log.Fatal(err)
@@ -102,7 +116,7 @@ func storeCompetitions(comp Competition) {
 func GetCompetitions() Competition {
 	competitions := requestCompetitions()
 
-	storeCompetitions(competitions)
+	storeData(prepareStatements(competitions))
 
 	return competitions
 }
