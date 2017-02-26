@@ -3,13 +3,13 @@
 
 ## Howto:
 
-Start a frest new instance of Neo4j running in a Docker container
+Start a fresh new instance of Neo4j running in a Docker container
 
 >`make neo4/start`
 
 Change the default Neo4j password:
 
->`make neo4j/set-dev-pass`
+>`make neo4j/dev-pass`
 
 Note that the first command will create the folder `$HOME/neo4j-regista/data` if this isn't already present.
 
@@ -20,7 +20,7 @@ regista
 ------------------------------------------------------------------------
 build                          Build unit test container
 clean                          Remove images and containers
-neo4j/set-dev-pass             Set new password for LOCAL development instance
+neo4j/dev-pass                 Set new password for LOCAL development instance
 neo4j/start                    Start Neo4j instance
 neo4j/stop                     Stop Neo4j instance
 neo4j/volume/purge             Remove Neo4j data volume @ $HOME/neo4j-regista/data

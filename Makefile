@@ -48,6 +48,6 @@ neo4j/start: neo4j/volume neo4j/stop ## Start Neo4j instance
 	--name "${NEO4J_CONTAINER_NAME}" \
 	neo4j
 
-neo4j/set-dev-pass: ## Set new password for LOCAL development instance
+neo4j/dev-pass: ## Set new password for LOCAL development instance
 	@sleep 5
 	@curl -H "Content-Type: application/json" -X POST -d '{"password":"${NEO4J_DEV_PASS}"}' -u neo4j:neo4j http://localhost:"${NEO4J_HTTP_PORT}"/user/neo4j/password
