@@ -8,6 +8,7 @@ NEO4J_HTTP_PORT := 7474
 NEO4J_BOLT_PORT := 7687
 NEO4J_DATA_VOLUME := "${HOME}"/neo4j-"${PROJECT_NAME}"/data
 NEO4J_DEV_PASS := neo4jdev
+
 .PHONY: help build test clean neo4j/start neo4j/stop neo4j/set-dev-pass
 
 help:
