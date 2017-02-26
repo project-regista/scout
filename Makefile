@@ -43,7 +43,7 @@ neo4j/start: neo4j/volume neo4j/stop ## Start Neo4j instance
 	-d \
 	--publish=${NEO4J_HTTP_PORT}:${NEO4J_HTTP_PORT} \
 	--publish=${NEO4J_BOLT_PORT}:${NEO4J_BOLT_PORT} \
-	--volume=/Users/alessandro/neo4j-regista/data:/data \
+	--volume="${NEO4J_DATA_VOLUME}":/data \
 	--name "${NEO4J_CONTAINER_NAME}" \
 	neo4j
 
