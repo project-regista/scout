@@ -1,6 +1,7 @@
 package competition
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -12,6 +13,7 @@ import (
 	"github.com/project-regista/scout/scout4neo"
 )
 
+// Competition defines a structure to hold data from competition in the socceramaAPI
 type Competition struct {
 	Data []struct {
 		ID      int    `json:"id"`
@@ -24,6 +26,14 @@ type Competition struct {
 			IsoCode string `json:"iso_code"`
 			Flag    string `json:"flag"`
 		} `json:"country"`
+		Seasons struct {
+			Data []struct {
+				ID            int    `json:"id"`
+				CompetitionID int    `json:"competition_id"`
+				Name          string `json:"name"`
+				Active        bool   `json:"active"`
+			} `json:"data"`
+		} `json:"seasons"`
 	} `json:"data"`
 }
 
@@ -35,7 +45,7 @@ func requestCompetitions() (Competition, error) {
 	a.GetAPI()
 
 	// Makes a request to the API for competitons and country
-	req, err := http.NewRequest("GET", "https://api.soccerama.pro/v1.2/competitions?api_token="+a.Key+"&include=country", nil)
+	req, err := http.NewRequest("GET", "https://api.soccerama.pro/v1.2/competitions?api_token="+a.Key+"&include=country,currentSeason,seasons", nil)
 	if err != nil {
 		return Competition{}, err
 	}
@@ -70,13 +80,26 @@ func requestCompetitions() (Competition, error) {
 func prepareStatements(comp Competition) []string {
 	var statements []string
 
-	for i := 0; i < len(comp.Data); i++ {
-
+	for _, comp := range comp.Data {
 		// Stores data from each competition
-		compID := strconv.Itoa(comp.Data[i].ID)
-		compName := comp.Data[i].Name
-		countryID := strconv.Itoa(comp.Data[i].Country.ID)
-		countryName := comp.Data[i].Country.Name
+		compID := strconv.Itoa(comp.ID)
+		compName := comp.Name
+		countryID := strconv.Itoa(comp.Country.ID)
+		countryName := comp.Country.Name
+
+		var buffer bytes.Buffer
+
+		for i, season := range comp.Seasons.Data {
+			seasonID := strconv.Itoa(season.ID)
+			seasonName := season.Name
+
+			buffer.WriteString(
+				"MERGE(season" + strconv.Itoa(i) + ":Season{id:" + seasonID + "})\n" +
+					"ON CREATE SET season" + strconv.Itoa(i) + ".name='" + seasonName + "'\n" +
+					"ON MATCH SET season" + strconv.Itoa(i) + ".name='" + seasonName + "'\n" +
+					"MERGE (comp)-[:HAS_SEASON]->(season" + strconv.Itoa(i) + ")\n",
+			)
+		}
 
 		// Construct a string that will store the competitons data in Neo4j
 		str := "MERGE (comp:Competition{id:" + compID + "})\n" +
@@ -85,7 +108,8 @@ func prepareStatements(comp Competition) []string {
 			"MERGE (country:Country{id:" + countryID + "})\n" +
 			"ON CREATE SET country.name='" + countryName + "'\n" +
 			"ON MATCH SET country.name='" + countryName + "'\n" +
-			"MERGE (country)-[:ORGANISES]->(comp)"
+			"MERGE (country)-[:ORGANISES]->(comp)\n" +
+			buffer.String()
 
 		// Array with all cypher statements
 		statements = append(statements, str)
@@ -100,6 +124,8 @@ func GetCompetitions() Competition {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// prepareStatements(competitions)
 	scout4neo.StoreData(prepareStatements(competitions))
 
 	return competitions
