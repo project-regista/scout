@@ -1,0 +1,11 @@
+neo4j:
+    user: user
+    password: password
+    host: host
+    http_port: http_port
+    bolt_port: bolt_port
+
+soccerama:
+    api_token: api_token
+    api_version: api_version
+    api_host: api_host
