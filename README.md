@@ -11,8 +11,11 @@ Competitions:
 
 
 ## HOWTO:
+
+```
 ------------------------------------------------------------------------
-regista
+regista - scout
 ------------------------------------------------------------------------
 build                          build test container
 test                           run unit and benchmark tests
+```
