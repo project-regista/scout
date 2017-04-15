@@ -1,106 +1,90 @@
+// Package competition contains functions to make
+// use of the Soccerama 'Competitions' endpoint
 package competition
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"log"
-	"net/http"
 
-	"strconv"
+	"fmt"
 
-	"github.com/project-regista/scout/configuration"
-	"github.com/project-regista/scout/scout4neo"
+	scout "github.com/project-regista/scout/client"
+	"github.com/project-regista/scout/request"
 )
 
-type Competition struct {
-	Data []struct {
-		ID      int    `json:"id"`
-		Cup     bool   `json:"cup"`
-		Name    string `json:"name"`
-		Active  bool   `json:"active"`
-		Country struct {
-			ID      int    `json:"id"`
-			Name    string `json:"name"`
-			IsoCode string `json:"iso_code"`
-			Flag    string `json:"flag"`
-		} `json:"country"`
-	} `json:"data"`
+// GetCompetition get a competition by ID
+func GetCompetition(client scout.Client, id string) (Competition, error) {
+
+	requestURL := fmt.Sprintf("https://%s/%s/competitions/%s",
+		client.APIHost, client.APIVersion, id)
+
+	// Request options
+	params := map[string]string{"api_token": client.APIToken}
+
+	// Make HTTP GET request
+	body, err := request.Get(requestURL, params)
+	if err != nil {
+		return Competition{}, fmt.Errorf("Failed to make competition request: %s", err)
+	}
+
+	// Decode the HTTP reponse into a Competition struct
+	defer body.Close()
+	dec := json.NewDecoder(body)
+
+	var competition Competition
+
+	if err := dec.Decode(&competition); err != nil {
+		return Competition{}, fmt.Errorf("Failed to decode competition response: %s", err)
+	}
+	return competition, nil
 }
 
-// Uses socceramaAPI to get data for competition, including country data
-func requestCompetitions() (Competition, error) {
-	// The configurtion is loaded
-	configuration.LoadConfig()
-	a := configuration.APIAuth()
-	a.GetAPI()
+// GetCompetitions get a list of competitions
+func GetCompetitions(client scout.Client) (Competitions, error) {
 
-	// Makes a request to the API for competitons and country
-	req, err := http.NewRequest("GET", "https://api.soccerama.pro/v1.2/competitions?api_token="+a.Key+"&include=country", nil)
+	requestURL := fmt.Sprintf("https://%s/%s/competitions",
+		client.APIHost, client.APIVersion)
+
+	params := map[string]string{"api_token": client.APIToken}
+
+	body, err := request.Get(requestURL, params)
 	if err != nil {
-		return Competition{}, err
+		return Competitions{}, fmt.Errorf("Failed to make competitions request: %s", err)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return Competition{}, err
+	defer body.Close()
+	dec := json.NewDecoder(body)
+
+	var competitions Competitions
+
+	if err := dec.Decode(&competitions); err != nil {
+		return Competitions{}, fmt.Errorf("Failed to decode competitions response: %s", err)
 	}
-
-	// Read all responses into content
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return Competition{}, err
-	}
-
-	defer resp.Body.Close()
-
-	// Instantiates a new struct for Competitions
-	comp := Competition{}
-
-	// Fill the competitons with data inside JSON
-	err = json.Unmarshal(content, &comp)
-	if err != nil {
-		return Competition{}, err
-	}
-
-	return comp, nil
-
+	return competitions, nil
 }
 
-// Prepares the statements to be sent to scout4neo
-func prepareStatements(comp Competition) []string {
-	var statements []string
+// GetCompetitionsSeasons get a list of competitions w/ seasons
+func GetCompetitionsSeasons(client scout.Client) (CompetitionsSeasons, error) {
 
-	for i := 0; i < len(comp.Data); i++ {
+	requestURL := fmt.Sprintf("https://%s/%s/competitions",
+		client.APIHost, client.APIVersion)
 
-		// Stores data from each competition
-		compID := strconv.Itoa(comp.Data[i].ID)
-		compName := comp.Data[i].Name
-		countryID := strconv.Itoa(comp.Data[i].Country.ID)
-		countryName := comp.Data[i].Country.Name
-
-		// Construct a string that will store the competitons data in Neo4j
-		str := "MERGE (comp:Competition{id:" + compID + "})\n" +
-			"ON CREATE SET comp.name='" + compName + "'\n" +
-			"ON MATCH SET comp.name='" + compName + "'\n" +
-			"MERGE (country:Country{id:" + countryID + "})\n" +
-			"ON CREATE SET country.name='" + countryName + "'\n" +
-			"ON MATCH SET country.name='" + countryName + "'\n" +
-			"MERGE (country)-[:ORGANISES]->(comp)"
-
-		// Array with all cypher statements
-		statements = append(statements, str)
+	params := map[string]string{
+		"api_token": client.APIToken,
+		"include":   "currentSeason,seasons",
 	}
 
-	return statements
-}
-
-// GetCompetitions is the main function to access all methos in this module
-func GetCompetitions() Competition {
-	competitions, err := requestCompetitions()
+	body, err := request.Get(requestURL, params)
 	if err != nil {
-		log.Fatal(err)
+		return CompetitionsSeasons{}, fmt.Errorf("Failed to make competitions request: %s", err)
 	}
-	scout4neo.StoreData(prepareStatements(competitions))
 
-	return competitions
+	defer body.Close()
+	dec := json.NewDecoder(body)
+
+	var competitionsSeasons CompetitionsSeasons
+
+	if err := dec.Decode(&competitionsSeasons); err != nil {
+		return CompetitionsSeasons{}, fmt.Errorf("Failed to decode competitions response: %s", err)
+	}
+	return competitionsSeasons, nil
 }
