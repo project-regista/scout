@@ -1,6 +1,5 @@
 #!/bin/bash
-set -e
-set -u
+set -eux
 
 # Go get package dependencies
 go get -d ./...
