@@ -1,6 +1,4 @@
-// Package competition contains functions to make
-// use of the Soccerama 'Competitions' endpoint
-package competition
+package request
 
 import (
 	"encoding/json"
@@ -8,10 +6,9 @@ import (
 	"fmt"
 
 	scout "github.com/project-regista/scout/client"
-	"github.com/project-regista/scout/request"
 )
 
-// GetCompetition get a competition by ID
+// GetCompetition get information about a single competition
 func GetCompetition(client scout.Client, id string) (Competition, error) {
 
 	requestURL := fmt.Sprintf("https://%s/%s/competitions/%s",
@@ -21,7 +18,7 @@ func GetCompetition(client scout.Client, id string) (Competition, error) {
 	params := map[string]string{"api_token": client.APIToken}
 
 	// Make HTTP GET request
-	body, err := request.Get(requestURL, params)
+	body, err := Get(requestURL, params)
 	if err != nil {
 		return Competition{}, fmt.Errorf("Failed to make competition request: %s", err)
 	}
@@ -38,7 +35,7 @@ func GetCompetition(client scout.Client, id string) (Competition, error) {
 	return competition, nil
 }
 
-// GetCompetitions get a list of competitions
+// GetCompetitions get all the competitions
 func GetCompetitions(client scout.Client) (Competitions, error) {
 
 	requestURL := fmt.Sprintf("https://%s/%s/competitions",
@@ -46,7 +43,7 @@ func GetCompetitions(client scout.Client) (Competitions, error) {
 
 	params := map[string]string{"api_token": client.APIToken}
 
-	body, err := request.Get(requestURL, params)
+	body, err := Get(requestURL, params)
 	if err != nil {
 		return Competitions{}, fmt.Errorf("Failed to make competitions request: %s", err)
 	}
@@ -73,7 +70,7 @@ func GetCompetitionsSeasons(client scout.Client) (CompetitionsSeasons, error) {
 		"include":   "currentSeason,seasons",
 	}
 
-	body, err := request.Get(requestURL, params)
+	body, err := Get(requestURL, params)
 	if err != nil {
 		return CompetitionsSeasons{}, fmt.Errorf("Failed to make competitions request: %s", err)
 	}

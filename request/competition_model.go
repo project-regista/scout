@@ -1,4 +1,4 @@
-package competition
+package request
 
 // Competition wraps single Competition
 /*
@@ -16,7 +16,7 @@ type Competition struct {
 	Active bool   `json:"active"`
 }
 
-// Competitions wraps single Competition
+// Competitions wraps a list of Competitions
 /*
 {
   "data": [
