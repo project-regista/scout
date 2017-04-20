@@ -5,9 +5,14 @@ The Scout repository contains a list of functions to handle HTTP requests to Soc
 The currently supported resources are:
 
 Competitions:
-  - competition
-  - competitions
-  - competitions w/ seasons
+  - competition                : get information about a single competition
+  - competitions               : get all the competitions
+  - competitions w/ seasons    : get all the competitions w/ seasons included
+
+Countries:
+  - country                    : get information about a single country
+  - countries                  : get all the countries
+  - countries w/ competitions  : get all the countries w/ competitions included
 
 
 ## HOWTO:
