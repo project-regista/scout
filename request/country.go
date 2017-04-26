@@ -44,7 +44,7 @@ func GetCountries(client scout.Client) (Countries, error) {
 		return Countries{}, fmt.Errorf("Failed to make countries request: %s", err)
 	}
 
-	// Decode the HTTP reponse into a Competition struct
+	// Decode the HTTP response into a Competition struct
 	defer body.Close()
 	dec := json.NewDecoder(body)
 
