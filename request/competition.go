@@ -23,7 +23,7 @@ func GetCompetitionCountry(client scout.Client, id string) (CompetitionCountry, 
 	// Make HTTP GET request
 	body, err := Get(requestURL, params)
 	if err != nil {
-		return CompetitionCountry{}, fmt.Errorf("Failed to make competition request: %s", err)
+		return CompetitionCountry{}, fmt.Errorf("Failed to make competition-country request: %s", err)
 	}
 
 	// Decode the HTTP response into a Competition struct
@@ -33,24 +33,25 @@ func GetCompetitionCountry(client scout.Client, id string) (CompetitionCountry, 
 	var competitionCountry CompetitionCountry
 
 	if err := dec.Decode(&competitionCountry); err != nil {
-		return CompetitionCountry{}, fmt.Errorf("Failed to decode competition response: %s", err)
+		return CompetitionCountry{}, fmt.Errorf("Failed to decode competition-country response: %s", err)
 	}
 	return competitionCountry, nil
 }
 
-// GetCompetitionsCountry get all the competitions
+// GetCompetitionsCountry get all the competitions w/ countries
 func GetCompetitionsCountry(client scout.Client) (CompetitionsCountry, error) {
 
 	requestURL := fmt.Sprintf("https://%s/%s/competitions",
 		client.APIHost, client.APIVersion)
 
-	params := map[string]string{"api_token": client.APIToken,
-		"include": "country",
+	params := map[string]string{
+		"api_token": client.APIToken,
+		"include":   "country",
 	}
 
 	body, err := Get(requestURL, params)
 	if err != nil {
-		return CompetitionsCountry{}, fmt.Errorf("Failed to make competitions request: %s", err)
+		return CompetitionsCountry{}, fmt.Errorf("Failed to make competitions-country request: %s", err)
 	}
 
 	defer body.Close()
@@ -59,7 +60,7 @@ func GetCompetitionsCountry(client scout.Client) (CompetitionsCountry, error) {
 	var competitionsCountry CompetitionsCountry
 
 	if err := dec.Decode(&competitionsCountry); err != nil {
-		return CompetitionsCountry{}, fmt.Errorf("Failed to decode competitions response: %s", err)
+		return CompetitionsCountry{}, fmt.Errorf("Failed to decode competitions-country response: %s", err)
 	}
 	return competitionsCountry, nil
 }
