@@ -8,80 +8,58 @@ import (
 	scout "github.com/project-regista/scout/client"
 )
 
-// GetCompetition get information about a single competition
-func GetCompetition(client scout.Client, id string) (Competition, error) {
+// GetCompetitionCountry get information about a single competition w/ country
+func GetCompetitionCountry(client scout.Client, id string) (CompetitionCountry, error) {
 
 	requestURL := fmt.Sprintf("https://%s/%s/competitions/%s",
 		client.APIHost, client.APIVersion, id)
 
 	// Request options
-	params := map[string]string{"api_token": client.APIToken}
+	params := map[string]string{
+		"api_token": client.APIToken,
+		"include":   "country",
+	}
 
 	// Make HTTP GET request
 	body, err := Get(requestURL, params)
 	if err != nil {
-		return Competition{}, fmt.Errorf("Failed to make competition request: %s", err)
+		return CompetitionCountry{}, fmt.Errorf("Failed to make competition request: %s", err)
 	}
 
-	// Decode the HTTP reponse into a Competition struct
+	// Decode the HTTP response into a Competition struct
 	defer body.Close()
 	dec := json.NewDecoder(body)
 
-	var competition Competition
+	var competitionCountry CompetitionCountry
 
-	if err := dec.Decode(&competition); err != nil {
-		return Competition{}, fmt.Errorf("Failed to decode competition response: %s", err)
+	if err := dec.Decode(&competitionCountry); err != nil {
+		return CompetitionCountry{}, fmt.Errorf("Failed to decode competition response: %s", err)
 	}
-	return competition, nil
+	return competitionCountry, nil
 }
 
-// GetCompetitions get all the competitions
-func GetCompetitions(client scout.Client) (Competitions, error) {
+// GetCompetitionsCountry get all the competitions
+func GetCompetitionsCountry(client scout.Client) (CompetitionsCountry, error) {
 
 	requestURL := fmt.Sprintf("https://%s/%s/competitions",
 		client.APIHost, client.APIVersion)
 
-	params := map[string]string{"api_token": client.APIToken}
+	params := map[string]string{"api_token": client.APIToken,
+		"include": "country",
+	}
 
 	body, err := Get(requestURL, params)
 	if err != nil {
-		return Competitions{}, fmt.Errorf("Failed to make competitions request: %s", err)
+		return CompetitionsCountry{}, fmt.Errorf("Failed to make competitions request: %s", err)
 	}
 
 	defer body.Close()
 	dec := json.NewDecoder(body)
 
-	var competitions Competitions
+	var competitionsCountry CompetitionsCountry
 
-	if err := dec.Decode(&competitions); err != nil {
-		return Competitions{}, fmt.Errorf("Failed to decode competitions response: %s", err)
+	if err := dec.Decode(&competitionsCountry); err != nil {
+		return CompetitionsCountry{}, fmt.Errorf("Failed to decode competitions response: %s", err)
 	}
-	return competitions, nil
-}
-
-// GetCompetitionsSeasons get a list of competitions w/ seasons
-func GetCompetitionsSeasons(client scout.Client) (CompetitionsSeasons, error) {
-
-	requestURL := fmt.Sprintf("https://%s/%s/competitions",
-		client.APIHost, client.APIVersion)
-
-	params := map[string]string{
-		"api_token": client.APIToken,
-		"include":   "currentSeason,seasons",
-	}
-
-	body, err := Get(requestURL, params)
-	if err != nil {
-		return CompetitionsSeasons{}, fmt.Errorf("Failed to make competitions request: %s", err)
-	}
-
-	defer body.Close()
-	dec := json.NewDecoder(body)
-
-	var competitionsSeasons CompetitionsSeasons
-
-	if err := dec.Decode(&competitionsSeasons); err != nil {
-		return CompetitionsSeasons{}, fmt.Errorf("Failed to decode competitions response: %s", err)
-	}
-	return competitionsSeasons, nil
+	return competitionsCountry, nil
 }
