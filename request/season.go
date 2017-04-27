@@ -10,7 +10,7 @@ import (
 // GetSeasonCompetition get information about a single season w/ competition
 func GetSeasonCompetition(client scout.Client, id string) (SeasonCompetition, error) {
 
-	requestURL := fmt.Sprintf("https://%s/%s/competitions/%s",
+	requestURL := fmt.Sprintf("https://%s/%s/seasons/%s",
 		client.APIHost, client.APIVersion, id)
 
 	// Request options
@@ -40,7 +40,7 @@ func GetSeasonCompetition(client scout.Client, id string) (SeasonCompetition, er
 // GetSeasonsCompetition get all the seasons w/ competitions
 func GetSeasonsCompetition(client scout.Client) (SeasonsCompetition, error) {
 
-	requestURL := fmt.Sprintf("https://%s/%s/competitions",
+	requestURL := fmt.Sprintf("https://%s/%s/seasons",
 		client.APIHost, client.APIVersion)
 
 	params := map[string]string{
