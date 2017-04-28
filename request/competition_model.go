@@ -16,10 +16,16 @@ package request
 }
 */
 type CompetitionCountry struct {
-	ID     int    `json:"id"`
-	Cup    bool   `json:"cup"`
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
+	ID      int    `json:"id"`
+	Cup     bool   `json:"cup"`
+	Name    string `json:"name"`
+	Active  bool   `json:"active"`
+	Country struct {
+		ID      int    `json:"id"`
+		Name    string `json:"name"`
+		IsoCode string `json:"iso_code"`
+		Flag    string `json:"flag"`
+	} `json:"country"`
 }
 
 // CompetitionsCountry wraps a list of Competitions w/ Country
@@ -55,9 +61,15 @@ type CompetitionCountry struct {
 */
 type CompetitionsCountry struct {
 	Data []struct {
-		ID     int    `json:"id"`
-		Cup    bool   `json:"cup"`
-		Name   string `json:"name"`
-		Active bool   `json:"active"`
+		ID      int    `json:"id"`
+		Cup     bool   `json:"cup"`
+		Name    string `json:"name"`
+		Active  bool   `json:"active"`
+		Country struct {
+			ID      int    `json:"id"`
+			Name    string `json:"name"`
+			IsoCode string `json:"iso_code"`
+			Flag    string `json:"flag"`
+		} `json:"country"`
 	} `json:"data"`
 }
