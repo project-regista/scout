@@ -16,7 +16,7 @@ func GetMatchSeason(client scout.Client, id string) (MatchSeason, error) {
 	// Request options
 	params := map[string]string{
 		"api_token": client.APIToken,
-		"include":   "season",
+		"include":   "season,homeTeam,awayTeam,venue,events,lineup,homeStats,awayStats,commentaries,odds,referee",
 	}
 
 	// Make HTTP GET request
