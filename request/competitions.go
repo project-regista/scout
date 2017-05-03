@@ -2,6 +2,7 @@ package request
 
 import (
 	"encoding/json"
+	"log"
 
 	"fmt"
 
@@ -35,6 +36,7 @@ func GetCompetitionCountry(client scout.Client, id string) (CompetitionCountry, 
 	if err := dec.Decode(&competitionCountry); err != nil {
 		return CompetitionCountry{}, fmt.Errorf("Failed to decode competition-country response: %s", err)
 	}
+	log.Printf("%+v\n", competitionCountry)
 	return competitionCountry, nil
 }
 
@@ -62,5 +64,6 @@ func GetCompetitionsCountry(client scout.Client) (CompetitionsCountry, error) {
 	if err := dec.Decode(&competitionsCountry); err != nil {
 		return CompetitionsCountry{}, fmt.Errorf("Failed to decode competitions-country response: %s", err)
 	}
+	log.Printf("%+v\n", competitionsCountry)
 	return competitionsCountry, nil
 }

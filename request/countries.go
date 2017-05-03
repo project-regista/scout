@@ -3,6 +3,7 @@ package request
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	scout "github.com/project-regista/scout/client"
 )
@@ -28,6 +29,7 @@ func GetCountry(client scout.Client, id string) (Country, error) {
 	if err := dec.Decode(&country); err != nil {
 		return Country{}, fmt.Errorf("Failed to decode country response: %s", err)
 	}
+	log.Printf("%+v\n", country)
 	return country, nil
 }
 
@@ -53,5 +55,6 @@ func GetCountries(client scout.Client) (Countries, error) {
 	if err := dec.Decode(&countries); err != nil {
 		return Countries{}, fmt.Errorf("Failed to decode countries response: %s", err)
 	}
+	log.Printf("%+v\n", countries)
 	return countries, nil
 }

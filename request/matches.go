@@ -3,6 +3,7 @@ package request
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	scout "github.com/project-regista/scout/client"
 )
@@ -34,5 +35,6 @@ func GetMatchSeason(client scout.Client, id string) (MatchSeason, error) {
 	if err := dec.Decode(&matchSeason); err != nil {
 		return MatchSeason{}, fmt.Errorf("Failed to decode match-season response: %s", err)
 	}
+	log.Printf("%+v\n", matchSeason)
 	return matchSeason, nil
 }

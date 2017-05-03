@@ -3,6 +3,7 @@ package request
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	scout "github.com/project-regista/scout/client"
 )
@@ -34,6 +35,7 @@ func GetSeasonCompetition(client scout.Client, id string) (SeasonCompetition, er
 	if err := dec.Decode(&seasonCompetition); err != nil {
 		return SeasonCompetition{}, fmt.Errorf("Failed to decode season-competition response: %s", err)
 	}
+	log.Printf("%+v\n", seasonCompetition)
 	return seasonCompetition, nil
 }
 
@@ -61,5 +63,6 @@ func GetSeasonsCompetition(client scout.Client) (SeasonsCompetition, error) {
 	if err := dec.Decode(&seasonsCompetition); err != nil {
 		return SeasonsCompetition{}, fmt.Errorf("Failed to decode competitions-country response: %s", err)
 	}
+	log.Printf("%+v\n", seasonsCompetition)
 	return seasonsCompetition, nil
 }
