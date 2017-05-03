@@ -8,8 +8,8 @@ import (
 	scout "github.com/project-regista/scout/client"
 )
 
-// GetMatchSeason retrieve information about a single match w/ season information
-func GetMatchSeason(client scout.Client, id string) (MatchSeason, error) {
+// GetMatch retrieve information about a single match w/ season information
+func GetMatch(client scout.Client, id string) (Match, error) {
 
 	requestURL := fmt.Sprintf("https://%s/%s/matches/%s",
 		client.APIHost, client.APIVersion, id)
@@ -23,18 +23,18 @@ func GetMatchSeason(client scout.Client, id string) (MatchSeason, error) {
 	// Make HTTP GET request
 	body, err := Get(requestURL, params)
 	if err != nil {
-		return MatchSeason{}, fmt.Errorf("Failed to make match-season request: %s", err)
+		return Match{}, fmt.Errorf("Failed to make match request: %s", err)
 	}
 
 	// Decode the HTTP response into a Competition struct
 	defer body.Close()
 	dec := json.NewDecoder(body)
 
-	var matchSeason MatchSeason
+	var match Match
 
-	if err := dec.Decode(&matchSeason); err != nil {
-		return MatchSeason{}, fmt.Errorf("Failed to decode match-season response: %s", err)
+	if err := dec.Decode(&match); err != nil {
+		return Match{}, fmt.Errorf("Failed to decode match-season response: %s", err)
 	}
-	log.Printf("%+v\n", matchSeason)
-	return matchSeason, nil
+	log.Printf("%+v\n", match)
+	return match, nil
 }
