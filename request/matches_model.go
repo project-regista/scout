@@ -22,6 +22,7 @@ type MatchSeason struct {
 	Commentary         bool   `json:"commentary"`
 	HtScore            string `json:"ht_score"`
 	FtScore            string `json:"ft_score"`
+	EtScore            string `json:"et_score"`
 	HomeTeamID         int    `json:"home_team_id"`
 	AwayTeamID         int    `json:"away_team_id"`
 	HomeScore          int    `json:"home_score"`
