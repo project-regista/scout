@@ -46,6 +46,8 @@ type MatchSeason struct {
 	SeasonID      int    `json:"season_id"`
 	RoundID       int    `json:"round_id"`
 	StageID       int    `json:"stage_id"`
+	RefereeID     int    `json:"referee_id"`
+	Aggregate     int    `json:"aggregate"`
 	Placeholder   bool   `json:"placeholder"`
 	Deleted       bool   `json:"deleted"`
 	ResultOnly    bool   `json:"result_only"`
