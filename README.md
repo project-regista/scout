@@ -4,15 +4,21 @@ The Scout repository contains a list of functions to handle HTTP requests to Soc
 
 The currently supported resources are:
 
-Competitions:
-  - competition                : get information about a single competition
-  - competitions               : get all the competitions
-  - competitions w/ seasons    : get all the competitions w/ seasons included
+[Competitions](https://soccerama.pro/docs/1.2/competitions):
+  - CompetitionCountry                : get information about a single competition including country
+  - CompetitionsCountry               : get all the competitions including country
 
-Countries:
-  - country                    : get information about a single country
-  - countries                  : get all the countries
-  - countries w/ competitions  : get all the countries w/ competitions included
+[Countries](https://soccerama.pro/docs/1.2/countries):
+  - Country                           : get information about a single country
+  - Countries                         : get all the countries
+
+[Matches](https://soccerama.pro/docs/1.2/matches):
+  - MatchSeason                       : get information about a single match including season
+  - MatchesSeason                     : get all the matches including season
+
+[Seasons](https://soccerama.pro/docs/1.2/seasons):
+  - SeasonCompetition                 : get information about a single season including competition
+  - SeasonsCompetition                : get all the season including competition
 
 
 ## HOWTO:
